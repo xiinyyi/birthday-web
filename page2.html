@@ -135,6 +135,31 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; font-family:'Gaegu
 .flame.off~.candle-stick .smoke,.flame.off+.smoke{display:block;}
 @keyframes smokeRise{0%{transform:translateX(-50%) scaleY(1);opacity:.8;}100%{transform:translateX(-50%) scaleY(3) translateY(-20px);opacity:0;}}
 
+/* ── Relight button ── */
+.relight-btn{
+  margin-top:18px;
+  padding:10px 28px;
+  background:rgba(30,8,55,.6);
+  border:1.5px solid rgba(196,160,240,.5);
+  border-radius:50px;
+  color:#e8d5ff;
+  font-family:'Gaegu',cursive;
+  font-size:1rem;
+  letter-spacing:1px;
+  cursor:pointer;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  transition:background .2s,transform .2s,box-shadow .2s;
+  animation:fadeInUp .5s ease both;
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+}
+.relight-btn:hover{
+  background:rgba(138,79,192,.45);
+  transform:translateY(-3px);
+  box-shadow:0 6px 20px rgba(150,80,255,.3);
+}
+.relight-btn:active{ transform:translateY(-1px); }
+
 /* ══════════════════════════════════════════
    CHRONOLOGY POPUP OVERLAY
 ══════════════════════════════════════════ */
@@ -411,6 +436,11 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; font-family:'Gaegu
         <div class="candle-stick"></div>
       </div>
     </div>
+
+    <!-- Reset button — shown after flame is blown -->
+    <button class="relight-btn" id="relightBtn" style="display:none;">
+      🕯️ Relight candle
+    </button>
   </div>
 
 </div><!-- /page -->
@@ -571,16 +601,26 @@ setInterval(spawnPetal,800);
 const flame      = document.getElementById('flame');
 const overlay    = document.getElementById('popupOverlay');
 const popupClose = document.getElementById('popupClose');
+const relightBtn = document.getElementById('relightBtn');
 let flameBlown   = false;
 
 function blowCandle(){
   if(flameBlown) return;
   flameBlown = true;
   flame.classList.add('off');
+  relightBtn.style.display = 'inline-block';
   shootConfetti();
   playBirthdaySong();
   setTimeout(()=>{ overlay.classList.add('open'); }, 500);
 }
+
+function relightCandle(){
+  flameBlown = false;
+  flame.classList.remove('off');
+  relightBtn.style.display = 'none';
+}
+
+relightBtn.addEventListener('click', e => { e.stopPropagation(); relightCandle(); });
 
 flame.addEventListener('click', e => { e.stopPropagation(); blowCandle(); });
 flame.addEventListener('touchend', e => { e.preventDefault(); blowCandle(); });

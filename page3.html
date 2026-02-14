@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>A Letter For You 💌</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Gaegu:wght@300;400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+:root {
+  --pur-deep:  #1e0540;
+  --pur-mid:   #7c3fbf;
+  --pur-light: #b48dd4;
+  --lavender:  #c9a8e8;
+  --pale:      #e8d5f5;
+  --cream:     #faf5ff;
+}
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+html,body{ width:100%; min-height:100vh; overflow-x:hidden; font-family:'Gaegu',cursive; }
+
+/* ── Cursor ── */
+@media(hover:none){ body{cursor:auto;} .cursor,.cursor-trail{display:none!important;} }
+@media(hover:hover){ body{cursor:none;} }
+.cursor{position:fixed;width:22px;height:22px;background:radial-gradient(circle,#e8d5f5,#b48dd4);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);box-shadow:0 0 12px #c9a8e8,0 0 24px #ede0f8;}
+.cursor-trail{position:fixed;width:9px;height:9px;background:#c9a8e8;border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);opacity:.55;transition:left .12s ease,top .12s ease;}
+
+/* ── Background ── */
+.bg{position:fixed;inset:0;background:url('img/bg3.jpeg') center/cover no-repeat;z-index:0;filter:brightness(0.32) saturate(1.15);transform:scale(1.05);animation:bgBreath 9s ease-in-out infinite;}
+@keyframes bgBreath{0%,100%{transform:scale(1.05);}50%{transform:scale(1.09);}}
+.overlay{position:fixed;inset:0;background:linear-gradient(170deg,rgba(30,5,70,.68) 0%,rgba(100,50,160,.38) 45%,rgba(150,100,200,.2) 70%,rgba(30,5,70,.72) 100%);z-index:1;}
+
+/* ── Glitter canvas ── */
+.glitter-canvas{position:fixed;inset:0;z-index:2;pointer-events:none;}
+
+/* ── Particles ── */
+.particles{position:fixed;inset:0;z-index:3;pointer-events:none;overflow:hidden;}
+.petal{position:absolute;animation:fallPetal linear infinite;opacity:0;}
+@keyframes fallPetal{0%{transform:translateY(-20px) rotate(0deg);opacity:0;}8%{opacity:.8;}92%{opacity:.5;}100%{transform:translateY(110vh) rotate(720deg) translateX(40px);opacity:0;}}
+
+/* ── Page ── */
+.page{
+  position:relative;z-index:10;
+  width:100%;min-height:100vh;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:40px 20px 90px;
+}
+
+/* ── Header ── */
+.page-title{
+  font-family:'Nanum Myeongjo',serif;font-weight:800;
+  font-size:clamp(1.5rem,5vw,2.8rem);color:#fff;
+  text-shadow:0 0 20px rgba(210,170,255,1),0 0 50px rgba(170,120,230,.9),0 2px 8px rgba(0,0,0,.8);
+  text-align:center;margin-bottom:6px;
+  animation:fadeInDown .8s ease .2s both;
+}
+.page-sub{
+  font-size:clamp(.9rem,3vw,1.1rem);color:#c9a8e8;
+  text-align:center;margin-bottom:44px;
+  animation:fadeInDown .8s ease .4s both;
+}
+@keyframes fadeInDown{from{opacity:0;transform:translateY(-20px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+
+/* ══════════════════════════
+   POSTCARD (envelope)
+══════════════════════════ */
+.postcard-scene{
+  position:relative;
+  width:min(380px,90vw);
+  display:flex;flex-direction:column;align-items:center;
+  animation:fadeInUp .9s ease .6s both;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* click hint */
+.click-hint{
+  font-size:clamp(.85rem,2.5vw,1rem);color:#c9a8e8;
+  letter-spacing:1px;margin-bottom:14px;
+  animation:hintPulse 2s ease-in-out infinite;
+}
+@keyframes hintPulse{0%,100%{opacity:.45;}50%{opacity:1;}}
+
+/* ── Envelope body ── */
+.envelope{
+  position:relative;
+  width:100%;
+  aspect-ratio:1.6/1;
+  filter:drop-shadow(0 20px 50px rgba(150,80,255,.4)) drop-shadow(0 4px 12px rgba(0,0,0,.4));
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1);
+}
+.postcard-scene:hover .envelope{ transform:translateY(-8px) rotate(-1deg); }
+
+/* envelope back */
+.env-back{
+  position:absolute;inset:0;
+  background:linear-gradient(160deg,#3d1270 0%,#5c2090 40%,#7c3fbf 100%);
+  border-radius:12px;
+  box-shadow:0 0 0 1.5px rgba(196,160,240,.3);
+}
+
+/* envelope flap (top triangle) */
+.env-flap{
+  position:absolute;top:0;left:0;right:0;
+  height:52%;
+  clip-path:polygon(0 0,100% 0,50% 100%);
+  background:linear-gradient(160deg,#4a1885 0%,#6a2eaa 100%);
+  transform-origin:top center;
+  transition:transform .6s cubic-bezier(.4,0,.2,1);
+  z-index:3;
+  border-radius:12px 12px 0 0;
+}
+/* flap crease line */
+.env-flap::after{
+  content:'';
+  position:absolute;
+  bottom:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(196,160,240,.5),transparent);
+}
+
+/* envelope side triangles */
+.env-left{
+  position:absolute;bottom:0;left:0;
+  width:50%;height:100%;
+  clip-path:polygon(0 0,0 100%,100% 100%);
+  background:linear-gradient(135deg,#2d1060,#5a1ea0);
+  border-radius:0 0 0 12px;
+}
+.env-right{
+  position:absolute;bottom:0;right:0;
+  width:50%;height:100%;
+  clip-path:polygon(100% 0,0 100%,100% 100%);
+  background:linear-gradient(225deg,#2d1060,#5a1ea0);
+  border-radius:0 0 12px 0;
+}
+
+/* wax seal */
+.wax-seal{
+  position:absolute;
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  z-index:4;
+  width:54px;height:54px;
+  background:radial-gradient(circle at 38% 35%,#d4a8ff,#8a3fc0 55%,#5a1e90 100%);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;
+  box-shadow:0 3px 14px rgba(100,30,160,.5),inset 0 1px 0 rgba(255,255,255,.2);
+  border:2px solid rgba(196,160,240,.4);
+  transition:transform .3s ease,opacity .3s ease;
+  animation:sealPulse 3s ease-in-out infinite;
+}
+@keyframes sealPulse{0%,100%{box-shadow:0 3px 14px rgba(100,30,160,.5),0 0 0 0 rgba(196,160,240,0);}50%{box-shadow:0 3px 14px rgba(100,30,160,.5),0 0 0 10px rgba(196,160,240,0.1);}}
+
+/* envelope opened state */
+.envelope.opened .env-flap{
+  transform:rotateX(-180deg);
+}
+.envelope.opened .wax-seal{
+  opacity:0;transform:translate(-50%,-50%) scale(0);
+}
+
+/* ── Letter (slides out of envelope) ── */
+.letter-wrap{
+  position:absolute;
+  bottom:8%;left:5%;right:5%;
+  z-index:2;
+  transform:translateY(0%) scaleY(0.01);
+  transform-origin:bottom center;
+  opacity:0;
+  pointer-events:none;
+  transition:
+    transform .7s cubic-bezier(.34,1.4,.64,1) .35s,
+    opacity .3s ease .35s;
+}
+.envelope.opened .letter-wrap{
+  transform:translateY(-115%) scaleY(1);
+  opacity:1;
+  pointer-events:none; /* letter card is separate */
+}
+
+.letter-preview{
+  background:linear-gradient(145deg,#faf5ff,#f0e6ff);
+  border-radius:8px 8px 4px 4px;
+  height:80px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.5rem;
+  box-shadow:0 -8px 30px rgba(120,50,200,.2);
+  border:1px solid rgba(196,160,240,.3);
+}
+
+/* ══════════════════════════
+   LETTER MODAL
+══════════════════════════ */
+.letter-modal{
+  position:fixed;inset:0;z-index:2000;
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;
+  background:rgba(15,3,35,.8);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  opacity:0;pointer-events:none;
+  transition:opacity .4s ease;
+}
+.letter-modal.open{opacity:1;pointer-events:all;}
+
+/* full letter card */
+.letter-card{
+  position:relative;
+  width:min(480px,96vw);
+  max-height:88vh;
+  background:linear-gradient(150deg,#fdfaff 0%,#f5eaff 40%,#ede0ff 100%);
+  border-radius:20px;
+  box-shadow:
+    0 30px 80px rgba(100,30,180,.5),
+    0 4px 20px rgba(0,0,0,.4),
+    inset 0 1px 0 rgba(255,255,255,.9);
+  overflow:hidden;
+  display:flex;flex-direction:column;
+  transform:scale(.75) translateY(60px);
+  transition:transform .55s cubic-bezier(.34,1.56,.64,1);
+}
+.letter-modal.open .letter-card{
+  transform:scale(1) translateY(0);
+}
+
+/* decorative top border */
+.letter-card::before{
+  content:'';
+  display:block;height:6px;
+  background:linear-gradient(90deg,#c9a8e8,#8a3fc0,#b48dd4,#c9a8e8);
+  background-size:200% 100%;
+  animation:borderShimmer 3s linear infinite;
+  flex-shrink:0;
+}
+@keyframes borderShimmer{0%{background-position:0%;}100%{background-position:200%;}}
+
+/* letter header */
+.letter-header{
+  padding:24px 28px 0;
+  display:flex;justify-content:space-between;align-items:flex-start;
+  flex-shrink:0;
+}
+.letter-stamp{
+  width:52px;height:62px;
+  background:linear-gradient(135deg,#ede0ff,#c9a8e8);
+  border:2px solid rgba(180,141,212,.5);
+  border-radius:6px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;
+  font-size:22px;
+  box-shadow:2px 2px 0 rgba(150,80,200,.15);
+  flex-shrink:0;
+}
+.letter-stamp small{font-size:.6rem;color:#8a3fc0;letter-spacing:1px;font-family:'Gaegu',cursive;}
+.letter-date{
+  font-family:'Gaegu',cursive;
+  font-size:.85rem;color:#9b59c4;
+  text-align:right;line-height:1.6;
+  padding-top:4px;
+}
+
+/* close btn */
+.letter-close{
+  position:absolute;top:12px;right:14px;z-index:10;
+  background:rgba(138,63,192,.15);
+  border:1px solid rgba(196,160,240,.4);
+  border-radius:50%;width:34px;height:34px;
+  display:flex;align-items:center;justify-content:center;
+  color:#8a3fc0;font-size:16px;cursor:pointer;
+  transition:background .2s,transform .2s;
+}
+.letter-close:hover{background:rgba(138,63,192,.3);transform:scale(1.1);}
+
+/* letter body scroll */
+.letter-body{
+  overflow-y:auto;
+  padding:14px 28px 30px;
+  flex:1;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(180,141,212,.4) transparent;
+}
+.letter-body::-webkit-scrollbar{width:4px;}
+.letter-body::-webkit-scrollbar-track{background:transparent;}
+.letter-body::-webkit-scrollbar-thumb{background:rgba(180,141,212,.4);border-radius:10px;}
+
+/* salutation */
+.letter-salutation{
+  font-family:'Nanum Myeongjo',serif;
+  font-size:clamp(1.1rem,4vw,1.4rem);
+  font-weight:700;color:#5a1e90;
+  margin-bottom:16px;line-height:1.4;
+  animation:letterLineFade .5s ease .1s both;
+}
+.letter-paragraph{
+  font-family:'Gowun Dodum',sans-serif;
+  font-size:clamp(.88rem,3vw,1rem);
+  color:#3d1270;line-height:1.9;
+  margin-bottom:14px;
+  animation:letterLineFade .5s ease both;
+}
+.letter-paragraph.p2{animation-delay:.15s;}
+.letter-paragraph.p3{animation-delay:.25s;}
+.letter-paragraph.p4{animation-delay:.35s;}
+.letter-paragraph.korean{
+  font-size:clamp(.85rem,2.8vw,.95rem);
+  color:#7c3fbf;font-style:italic;
+  border-left:3px solid rgba(180,141,212,.6);
+  padding-left:14px;margin:14px 0;
+}
+@keyframes letterLineFade{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* divider */
+.letter-divider{
+  display:flex;align-items:center;gap:10px;margin:16px 0;
+}
+.letter-divider span{font-size:14px;color:#b48dd4;}
+.letter-divider .ld-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(180,141,212,.5),transparent);}
+
+/* sign off */
+.letter-signoff{
+  font-family:'Nanum Myeongjo',serif;
+  font-size:clamp(1rem,3.5vw,1.2rem);
+  font-weight:700;color:#5a1e90;
+  text-align:right;margin-top:18px;line-height:1.7;
+  animation:letterLineFade .5s ease .45s both;
+}
+
+/* hearts row */
+.letter-hearts{
+  text-align:center;font-size:1.3rem;letter-spacing:6px;
+  margin-top:14px;
+  animation:letterLineFade .5s ease .55s both;
+}
+
+/* floating decorations inside letter */
+.letter-deco{
+  position:absolute;font-size:1.1rem;opacity:.18;pointer-events:none;
+}
+
+/* ── Nav bar ── */
+.nav-bar{
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+  display:flex;gap:12px;z-index:100;
+  background:rgba(30,5,65,.6);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border:1px solid rgba(196,160,240,.3);
+  border-radius:50px;padding:10px 20px;
+}
+.nav-btn{
+  padding:8px 20px;border-radius:50px;text-decoration:none;
+  font-family:'Nanum Myeongjo',serif;font-weight:700;font-size:.9rem;
+  color:#e8d5ff;border:1px solid rgba(196,160,240,.35);
+  background:transparent;cursor:pointer;
+  transition:background .2s,transform .2s;
+  -webkit-tap-highlight-color:transparent;white-space:nowrap;
+}
+.nav-btn:hover{background:rgba(180,141,212,.25);transform:translateY(-2px);}
+.nav-btn.primary{background:linear-gradient(135deg,#b48dd4,#7c3fbf);border-color:transparent;color:#fff;}
+.nav-btn.primary:hover{background:linear-gradient(135deg,#c9a8e8,#8a4fc0);}
+
+/* ── Sound btn ── */
+.sound-btn{
+  position:fixed;bottom:20px;right:20px;z-index:200;
+  background:rgba(30,5,65,.6);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border:1.5px solid rgba(196,160,240,.5);
+  border-radius:50%;width:50px;height:50px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:22px;
+  transition:transform .2s,background .2s;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  animation:fadeIn 1s ease 1.5s both;
+}
+.sound-btn:hover{transform:scale(1.12);background:rgba(138,79,192,.5);}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+
+/* ── Ripple ── */
+.ripple{position:fixed;border-radius:50%;border:2px solid rgba(196,160,240,.85);transform:scale(0);animation:rippleOut .7s ease-out forwards;pointer-events:none;z-index:9997;}
+@keyframes rippleOut{to{transform:scale(7);opacity:0;}}
+
+/* ── Floating sparkle hearts ── */
+.float-heart{position:absolute;animation:floatUp ease-in infinite;opacity:0;pointer-events:none;}
+@keyframes floatUp{0%{transform:translateY(0) scale(.5);opacity:0;}18%{opacity:1;}82%{opacity:.5;}100%{transform:translateY(-80vh) scale(1.1) rotate(12deg);opacity:0;}}
+
+/* ── Reseal button ── */
+.reseal-btn{
+  margin-top:20px;
+  padding:10px 28px;
+  background:rgba(30,5,65,.6);
+  border:1.5px solid rgba(196,160,240,.5);
+  border-radius:50px;
+  color:#e8d5ff;
+  font-family:'Gaegu',cursive;
+  font-size:1rem;
+  letter-spacing:1px;
+  cursor:pointer;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  transition:background .2s,transform .2s,box-shadow .2s;
+  animation:fadeInUp .5s ease both;
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+}
+.reseal-btn:hover{
+  background:rgba(138,79,192,.4);
+  transform:translateY(-3px);
+  box-shadow:0 6px 20px rgba(150,80,255,.3);
+}
+.reseal-btn:active{ transform:translateY(-1px); }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-trail" id="cursorTrail"></div>
+
+<div class="bg"></div>
+<div class="overlay"></div>
+<canvas class="glitter-canvas" id="glitterCanvas"></canvas>
+<div class="particles" id="particles"></div>
+
+<!-- ══ PAGE ══ -->
+<div class="page">
+
+  <div class="page-title">A letter for you 💌</div>
+  <div class="page-sub">Something from the heart~ tap the envelope</div>
+
+  <!-- ════ POSTCARD / ENVELOPE ════ -->
+  <div class="postcard-scene" id="postcardScene">
+    <div class="click-hint" id="clickHint">✦ tap to open ✦</div>
+
+    <div class="envelope" id="envelope">
+      <!-- layers -->
+      <div class="env-back"></div>
+      <div class="env-left"></div>
+      <div class="env-right"></div>
+
+      <!-- letter peeking out -->
+      <div class="letter-wrap">
+        <div class="letter-preview">💜</div>
+      </div>
+
+      <!-- flap on top -->
+      <div class="env-flap"></div>
+
+      <!-- wax seal -->
+      <div class="wax-seal">💜</div>
+    </div>
+
+    <!-- Reset button — shown after envelope is opened -->
+    <button class="reseal-btn" id="resealBtn" style="display:none;">
+      💌 Close envelope
+    </button>
+  </div>
+
+</div><!-- /page -->
+
+<!-- ════ LETTER MODAL ════ -->
+<div class="letter-modal" id="letterModal">
+  <div class="letter-card" id="letterCard">
+
+    <!-- decorative corner elements -->
+    <div class="letter-deco" style="top:70px;right:18px">✦</div>
+    <div class="letter-deco" style="top:120px;left:14px">✦</div>
+    <div class="letter-deco" style="bottom:80px;right:22px">✦</div>
+
+    <button class="letter-close" id="letterClose">✕</button>
+
+    <div class="letter-header">
+      <div class="letter-stamp">
+        <span>🌸</span>
+        <small>LOVE</small>
+      </div>
+      <div class="letter-date">
+        💜 Happy Birthday 💜<br>
+        To my dearest sis~
+      </div>
+    </div>
+
+    <div class="letter-body">
+
+      <div class="letter-salutation">
+        Annyeong, my dearest sis~ 🌸
+      </div>
+
+      <p class="letter-paragraph">
+        오늘은 정말 특별한 날이야~ Today is the day the universe decided to
+        gift us with the most wonderful person — <em>you</em>. 🎂
+        I still cannot believe how fast time flies, but looking back at every
+        memory we've shared, my heart feels so full it could burst into a
+        million purple confetti pieces! 💜
+      </p>
+
+      <div class="letter-divider">
+        <div class="ld-line"></div>
+        <span>🌷</span>
+        <div class="ld-line"></div>
+      </div>
+
+      <p class="letter-paragraph p2">
+        From high school corridors to Form 6 late nights, from those after-school
+        snack runs to the whole uni chaos — you have been the constant
+        soft melody in the background of all my favourite memories.
+        The kind of person who makes every ordinary Tuesday feel like a K-drama
+        OST moment. ✨
+      </p>
+
+      <p class="letter-paragraph p3 korean">
+        "우리가 함께한 모든 순간이 내 마음 속에 영원히 남아있을 거야~
+        네가 있어서 내 세상이 더 예쁘고 따뜻해. 진심으로 고마워." 💕
+      </p>
+
+      <p class="letter-paragraph p4">
+        And now, living your 어니 era in 대한민국 — omo, look at you!! 🇰🇷
+        You are literally out there writing the most beautiful chapter of your life,
+        and I am so incredibly proud of you. Every single day. Please keep
+        chasing everything your heart wants, eat well, rest well, and know
+        that no matter how far away, you are always close in my heart. 🌙
+      </p>
+
+      <div class="letter-divider">
+        <div class="ld-line"></div>
+        <span>⭐</span>
+        <div class="ld-line"></div>
+      </div>
+
+      <p class="letter-paragraph" style="animation-delay:.42s">
+        On this birthday, I wish you a year filled with laughter that makes
+        your cheeks hurt, adventures that steal your breath, friendships that
+        warm your soul, and all the tokbokki and 아이스크림 you could ever
+        want~ 🍡🍦 May every dream you hold secretly in your heart come true,
+        one by one, like a perfectly timed K-drama plot twist. 🎬💫
+      </p>
+
+      <div class="letter-signoff">
+        사랑해, 언제나 항상. 🩷<br>
+        Your forever Uaenaa ✨
+      </div>
+
+      <div class="letter-hearts">
+        💜 🌸 💜 🌸 💜
+      </div>
+
+    </div><!-- /letter-body -->
+  </div><!-- /letter-card -->
+</div><!-- /letter-modal -->
+
+<!-- ── Nav ── -->
+<nav class="nav-bar">
+  <a href="page2.html" class="nav-btn">← Back</a>
+  <a href="index.html" class="nav-btn primary">🏠 Home</a>
+</nav>
+
+<button class="sound-btn" id="soundBtn" aria-label="Toggle Music">🎵</button>
+
+<script>
+// ── Cursor ──────────────────────────────────────────────
+const cursor = document.getElementById('cursor');
+const trail  = document.getElementById('cursorTrail');
+const isTouch = window.matchMedia('(hover: none)').matches;
+if (!isTouch) {
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px';
+    setTimeout(() => { trail.style.left = e.clientX+'px'; trail.style.top = e.clientY+'px'; }, 90);
+  });
+}
+
+// ── Ripple ──────────────────────────────────────────────
+document.addEventListener('click', e => {
+  const r = document.createElement('div'); r.className = 'ripple';
+  r.style.cssText = `left:${e.clientX-20}px;top:${e.clientY-20}px;width:40px;height:40px`;
+  document.body.appendChild(r); setTimeout(() => r.remove(), 750);
+});
+
+// ── Glitter canvas ───────────────────────────────────────
+const canvas = document.getElementById('glitterCanvas');
+const ctx    = canvas.getContext('2d');
+function resize(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+resize(); window.addEventListener('resize', resize);
+const sparkles = Array.from({length:55}, () => ({
+  x: Math.random()*canvas.width, y: Math.random()*canvas.height,
+  r: 1+Math.random()*2.5, a: Math.random()*Math.PI*2,
+  op: Math.random(), dir: (0.01+Math.random()*.04)*(Math.random()<.5?1:-1),
+  color: ['#c9a8e8','#b48dd4','#e8d5f5','#ffffff','#d4b8f0'][Math.floor(Math.random()*5)]
+}));
+function drawSparkles(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  sparkles.forEach(s => {
+    s.op += s.dir; if(s.op>1||s.op<0) s.dir*=-1;
+    ctx.save(); ctx.globalAlpha = Math.max(0,Math.min(1,s.op));
+    ctx.fillStyle = s.color; ctx.shadowBlur = 10; ctx.shadowColor = s.color;
+    ctx.beginPath(); const r=s.r, ir=r*.38;
+    for(let i=0;i<8;i++){
+      const ang=(i*Math.PI)/4+s.a, rad=i%2===0?r:ir;
+      i===0?ctx.moveTo(s.x+rad*Math.cos(ang),s.y+rad*Math.sin(ang)):ctx.lineTo(s.x+rad*Math.cos(ang),s.y+rad*Math.sin(ang));
+    }
+    ctx.closePath(); ctx.fill(); ctx.restore();
+    s.a+=.012; s.x+=Math.sin(s.a)*.25; s.y+=.18;
+    if(s.y>canvas.height){ s.y=0; s.x=Math.random()*canvas.width; }
+  });
+  requestAnimationFrame(drawSparkles);
+}
+drawSparkles();
+
+// ── Falling petals ───────────────────────────────────────
+const particles = document.getElementById('particles');
+const emojiSet  = ['🌸','💜','✨','💕','⭐','💌','💫','🌷'];
+function spawnPetal(){
+  const p = document.createElement('div'); p.className = 'petal';
+  p.textContent = emojiSet[Math.floor(Math.random()*emojiSet.length)];
+  const dur = 7+Math.random()*8, del = Math.random()*3;
+  p.style.cssText = `left:${Math.random()*100}%;font-size:${12+Math.random()*14}px;animation-duration:${dur}s;animation-delay:${del}s;`;
+  particles.appendChild(p);
+  setTimeout(()=>p.remove(), (dur+del)*1000+500);
+}
+for(let i=0;i<18;i++) spawnPetal();
+setInterval(spawnPetal, 800);
+
+// ── Floating hearts ──────────────────────────────────────
+function spawnHeart(){
+  const h = document.createElement('div'); h.className = 'float-heart';
+  const set = ['💜','💕','💖','💝','🩷'];
+  h.textContent = set[Math.floor(Math.random()*set.length)];
+  const x = Math.random()<.5 ? Math.random()*12 : 88+Math.random()*12;
+  const dur=6+Math.random()*5, del=Math.random()*3;
+  h.style.cssText = `left:${x}%;bottom:0;animation-duration:${dur}s;animation-delay:${del}s;font-size:${14+Math.random()*10}px;filter:drop-shadow(0 0 4px rgba(160,80,255,.6));`;
+  particles.appendChild(h);
+  setTimeout(()=>h.remove(),(dur+del)*1000+500);
+}
+for(let i=0;i<8;i++) spawnHeart();
+setInterval(spawnHeart,1200);
+
+// ══════════════════════════════════════════════
+// ENVELOPE OPEN SEQUENCE
+// ══════════════════════════════════════════════
+const envelope    = document.getElementById('envelope');
+const clickHint   = document.getElementById('clickHint');
+const letterModal = document.getElementById('letterModal');
+const letterClose = document.getElementById('letterClose');
+const postcardScene = document.getElementById('postcardScene');
+const resealBtn   = document.getElementById('resealBtn');
+let envelopeOpened = false;
+
+function openEnvelope() {
+  if (envelopeOpened) return;
+  envelopeOpened = true;
+
+  // Fade hint out
+  clickHint.style.transition = 'opacity .3s';
+  clickHint.style.opacity = '0';
+
+  // 1. Open flap + slide letter up
+  envelope.classList.add('opened');
+
+  // 2. Show reseal button
+  resealBtn.style.display = 'inline-block';
+
+  // 3. After letter slides up, open full modal
+  setTimeout(() => {
+    letterModal.classList.add('open');
+    spawnEnvelopeHearts();
+    playUIThroughTheNight();
+  }, 900);
+}
+
+function resealEnvelope() {
+  // Close modal first
+  letterModal.classList.remove('open');
+  // Reverse envelope animation
+  envelope.classList.remove('opened');
+  // Restore hint
+  clickHint.style.opacity = '1';
+  // Hide reseal button
+  resealBtn.style.display = 'none';
+  // Allow re-opening
+  envelopeOpened = false;
+}
+
+resealBtn.addEventListener('click', e => { e.stopPropagation(); resealEnvelope(); });
+
+postcardScene.addEventListener('click', openEnvelope);
+postcardScene.addEventListener('touchend', e => { e.preventDefault(); openEnvelope(); });
+
+letterClose.addEventListener('click', () => letterModal.classList.remove('open'));
+letterModal.addEventListener('click', e => { if(e.target === letterModal) letterModal.classList.remove('open'); });
+document.addEventListener('keydown', e => { if(e.key==='Escape') letterModal.classList.remove('open'); });
+
+// ── Heart burst when envelope opens ─────────────────────
+function spawnEnvelopeHearts(){
+  const cx = window.innerWidth/2, cy = window.innerHeight*.45;
+  const emojis = ['💜','💕','🌸','✨','💫','⭐','🎀','🩷'];
+  for(let i=0;i<18;i++){
+    const el = document.createElement('div');
+    el.style.cssText = `
+      position:fixed;left:${cx}px;top:${cy}px;
+      font-size:${16+Math.random()*14}px;pointer-events:none;z-index:9990;
+      transform:translate(-50%,-50%);
+      animation:burstOut ${0.8+Math.random()*.6}s ease forwards;
+      --dx:${(Math.random()-0.5)*260}px;
+      --dy:${-60-Math.random()*200}px;
+    `;
+    el.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), 1500);
+  }
+}
+
+// inject burst keyframe
+const style = document.createElement('style');
+style.textContent = `
+@keyframes burstOut{
+  0%{transform:translate(-50%,-50%) scale(0);opacity:1;}
+  60%{opacity:1;}
+  100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1.2);opacity:0;}
+}`;
+document.head.appendChild(style);
+
+// ══════════════════════════════════════════════
+// AUDIO — "Through the Night" IU inspired dreamy
+// ══════════════════════════════════════════════
+let audioCtx, masterGain, songPlaying = false, songIntervals = [];
+const soundBtn = document.getElementById('soundBtn');
+
+function playUIThroughTheNight(){
+  if(songPlaying || audioCtx) return;
+  startSong();
+}
+
+function startSong(){
+  if(songPlaying) return;
+  songPlaying = true;
+  soundBtn.textContent = '🎶';
+
+  audioCtx   = new(window.AudioContext || window.webkitAudioContext)();
+  masterGain = audioCtx.createGain();
+  masterGain.gain.value = 0;
+  masterGain.connect(audioCtx.destination);
+  // Fade in
+  masterGain.gain.linearRampToValueAtTime(0.12, audioCtx.currentTime + 2);
+
+  // ── Reverb ──
+  const conv = audioCtx.createConvolver();
+  const rb   = audioCtx.createBuffer(2, audioCtx.sampleRate * 3, audioCtx.sampleRate);
+  for(let c=0;c<2;c++){
+    const d = rb.getChannelData(c);
+    for(let i=0;i<d.length;i++) d[i] = (Math.random()*2-1) * Math.pow(1-i/d.length, 1.8);
+  }
+  conv.buffer = rb; conv.connect(masterGain);
+
+  // ── Delay echo ──
+  const delay     = audioCtx.createDelay(1.2);
+  const delayGain = audioCtx.createGain();
+  delay.delayTime.value = 0.42;
+  delayGain.gain.value  = 0.22;
+  delay.connect(delayGain); delayGain.connect(delay); delayGain.connect(conv);
+
+  // helper: play a note
+  function note(freq, start, dur, vol=0.35, type='sine', detune=0){
+    if(!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const env = audioCtx.createGain();
+    osc.type = type; osc.frequency.value = freq; osc.detune.value = detune;
+    env.gain.setValueAtTime(0, start);
+    env.gain.linearRampToValueAtTime(vol, start + 0.06);
+    env.gain.setValueAtTime(vol * 0.75, start + dur * 0.5);
+    env.gain.exponentialRampToValueAtTime(0.001, start + dur);
+    osc.connect(env); env.connect(conv); env.connect(delay);
+    osc.start(start); osc.stop(start + dur + 0.15);
+  }
+
+  // helper: chord
+  function chord(freqs, start, dur, vol=0.09){
+    const fil = audioCtx.createBiquadFilter();
+    fil.type = 'lowpass'; fil.frequency.value = 900; fil.Q.value = 1.5;
+    fil.connect(conv);
+    freqs.forEach(freq => {
+      const osc = audioCtx.createOscillator();
+      const env = audioCtx.createGain();
+      osc.type = 'sawtooth'; osc.frequency.value = freq;
+      env.gain.setValueAtTime(0, start);
+      env.gain.linearRampToValueAtTime(vol, start + 0.8);
+      env.gain.setValueAtTime(vol * 0.85, start + dur - 1);
+      env.gain.linearRampToValueAtTime(0, start + dur);
+      osc.connect(env); env.connect(fil);
+      osc.start(start); osc.stop(start + dur + 0.1);
+    });
+  }
+
+  // ── Through the Night (IU) melody approximation ──
+  // Key: A major / F# minor  BPM ~76
+  const BPM = 76, B = 60 / BPM;
+  const t   = audioCtx.currentTime + 0.5;
+
+  // Main melody: dreamy pentatonic-ish line inspired by "Through the Night"
+  // Notes in Hz (A4=440): E5=659.25, D5=587.33, C#5=554.37, B4=493.88, A4=440,
+  //   G#4=415.30, F#4=369.99, E4=329.63, D4=293.66, C#4=277.18, B3=246.94, A3=220
+  const melody = [
+    // Intro / Verse feel
+    [659.25,1],[587.33,.5],[554.37,.5],[493.88,1],[440,2],
+    [493.88,.75],[440,.25],[415.30,.5],[369.99,.5],[440,1.5],[329.63,.5],[369.99,2],
+    // Chorus-like lift
+    [659.25,.5],[698.46,.5],[739.99,1],[659.25,.5],[587.33,.5],[554.37,1],[493.88,.5],[440,.5],[493.88,2],
+    [587.33,.75],[554.37,.25],[493.88,.5],[440,.5],[369.99,1],[415.30,.5],[440,.5],[493.88,2],
+    // Bridge
+    [880,1],[783.99,.5],[739.99,.5],[659.25,.75],[587.33,.25],[554.37,1],[493.88,.5],[440,.5],[493.88,1.5],[440,.5],[369.99,2],
+    // Outro fade
+    [659.25,1],[587.33,1],[554.37,1],[440,3],
+  ];
+
+  let mt = t + B * 2; // small intro pause
+  melody.forEach(([freq, beats]) => {
+    note(freq, mt, beats * B * 0.88, 0.32, 'sine');
+    // shimmer octave-up ghost
+    if(Math.random() > 0.65) note(freq*2, mt + beats*B*.1, beats*B*.5, 0.05, 'sine', 5);
+    mt += beats * B;
+  });
+
+  // ── Pad chord progression (A - F#m - D - E cycling) ──
+  const padChords = [
+    [220, 277.18, 329.63, 440],      // A maj
+    [184.99, 246.94, 293.66, 369.99],// F#m
+    [146.83, 220, 293.66, 369.99],   // D maj
+    [164.81, 246.94, 329.63, 415.30] // E maj
+  ];
+  const barLen = B * 4;
+  const totalBars = Math.ceil(mt / barLen) + 2;
+
+  function schedulePads(startIdx){
+    for(let i = 0; i < 8; i++){
+      const ci = (startIdx + i) % padChords.length;
+      chord(padChords[ci], t + (startIdx + i) * barLen, barLen + 0.3, 0.07);
+    }
+  }
+  schedulePads(0);
+  const padTimer = setInterval(() => {
+    if(!audioCtx) return;
+    schedulePads(Math.floor((audioCtx.currentTime - t) / barLen) + 1);
+  }, barLen * 8 * 1000);
+  songIntervals.push(padTimer);
+
+  // ── Bell / music-box sprinkle ──
+  const bellFreqs = [1318.5, 1174.66, 1108.73, 987.77, 880, 783.99, 739.99, 659.25];
+  let bt = t + B;
+  function schedBells(){
+    for(let i=0;i<12;i++){
+      const f = bellFreqs[Math.floor(Math.random()*bellFreqs.length)];
+      note(f, bt + Math.random()*(barLen*4), 0.3+Math.random()*.4, 0.12, 'sine');
+    }
+    bt += barLen * 4;
+  }
+  schedBells();
+  const bellTimer = setInterval(schedBells, barLen * 4 * 1000);
+  songIntervals.push(bellTimer);
+
+  // loop melody after ~mt seconds
+  const loopDelay = (mt - t + B * 2) * 1000;
+  const loopTimer = setTimeout(() => {
+    if(!audioCtx) return;
+    let lt = audioCtx.currentTime + 0.3;
+    melody.forEach(([freq, beats]) => {
+      note(freq, lt, beats*B*.88, 0.25, 'sine');
+      lt += beats*B;
+    });
+  }, loopDelay);
+  songIntervals.push({ clear: () => clearTimeout(loopTimer) });
+}
+
+function stopSong(){
+  if(!songPlaying) return;
+  songIntervals.forEach(id => typeof id === 'object' ? id.clear() : clearInterval(id));
+  songIntervals = [];
+  if(masterGain) masterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.8);
+  setTimeout(() => { if(audioCtx){audioCtx.close(); audioCtx=null;} }, 900);
+  songPlaying = false;
+  soundBtn.textContent = '🎵';
+}
+
+soundBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  songPlaying ? stopSong() : startSong();
+});
+
+// auto-start on first interaction
+document.addEventListener('click',    () => { if(!songPlaying) startSong(); }, { once:true });
+document.addEventListener('touchend', () => { if(!songPlaying) startSong(); }, { once:true, passive:true });
+</script>
+</body>
+</html>

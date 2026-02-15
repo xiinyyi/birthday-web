@@ -536,6 +536,11 @@ html, body { width:100%; min-height:100vh; overflow-x:hidden; font-family:'Gaegu
 
 <button class="sound-btn" id="soundBtn" aria-label="Toggle Music">🎵</button>
 
+<!-- ── Background audio ── -->
+<audio id="bgAudio" loop preload="auto">
+  <source src="audio/1.mpeg" type="audio/mpeg">
+</audio>
+
 <script>
 // ── Cursor ──────────────────────────────────────────────
 const cursor = document.getElementById('cursor');
@@ -611,6 +616,7 @@ function blowCandle(){
   relightBtn.style.display = 'inline-block';
   shootConfetti();
   playBirthdaySong();
+  switchToGalleryAudio();
   setTimeout(()=>{ overlay.classList.add('open'); }, 500);
 }
 
@@ -660,107 +666,55 @@ lightboxClose.addEventListener('click',()=>lightbox.classList.remove('open'));
 lightbox.addEventListener('click',e=>{ if(e.target===lightbox||e.target===lightboxImg) lightbox.classList.remove('open'); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ lightbox.classList.remove('open'); overlay.classList.remove('open'); }});
 
-// ── Birthday KPop audio ─────────────────────────────────
-let audioCtx, masterGain, bdPlaying=false;
-const soundBtn=document.getElementById('soundBtn');
+// ── Audio playback ──────────────────────────────────────
+const bgAudio  = document.getElementById('bgAudio');
+const soundBtn = document.getElementById('soundBtn');
 
-function playBirthdaySong(){
-  if(bdPlaying) return;
-  startBirthdayMusic();
-}
-
-function startBirthdayMusic(){
-  if(bdPlaying||audioCtx) return;
-  bdPlaying=true;
+// Attempt autoplay immediately
+bgAudio.volume = 0.75;
+bgAudio.play().then(()=>{
   soundBtn.textContent='🎶';
-  audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-  masterGain=audioCtx.createGain(); masterGain.gain.value=0.11;
-  masterGain.connect(audioCtx.destination);
+}).catch(()=>{
+  // Autoplay blocked — wait for first user interaction
+  soundBtn.textContent='🎵';
+});
 
-  // Reverb
-  const conv=audioCtx.createConvolver();
-  const rb=audioCtx.createBuffer(2,audioCtx.sampleRate*2,audioCtx.sampleRate);
-  for(let c=0;c<2;c++){const d=rb.getChannelData(c);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,2);}
-  conv.buffer=rb; conv.connect(masterGain);
-
-  // Delay/echo
-  const delay=audioCtx.createDelay(1);
-  delay.delayTime.value=0.35;
-  const delayGain=audioCtx.createGain(); delayGain.gain.value=0.28;
-  delay.connect(delayGain); delayGain.connect(delay); delayGain.connect(conv);
-
-  function note(freq,start,dur,vol=0.4,type='sine'){
-    const osc=audioCtx.createOscillator();
-    const env=audioCtx.createGain();
-    osc.type=type; osc.frequency.value=freq;
-    env.gain.setValueAtTime(0,start);
-    env.gain.linearRampToValueAtTime(vol,start+0.04);
-    env.gain.exponentialRampToValueAtTime(0.001,start+dur);
-    osc.connect(env); env.connect(conv); env.connect(delay);
-    osc.start(start); osc.stop(start+dur+0.1);
-  }
-
-  // Happy Birthday melody (kpop dreamy version, higher octave + ornaments)
-  const t=audioCtx.currentTime+0.3;
-  const BPM=88, B=60/BPM;
-  // Happy Birthday notes: G G A G C B | G G A G D C | G G G' E C B A | F F E C D C
-  const melody=[
-    [392,.75],[392,.25],[440,1],[392,1],[523.25,1],[493.88,2],
-    [392,.75],[392,.25],[440,1],[392,1],[587.33,1],[523.25,2],
-    [392,.75],[392,.25],[783.99,1],[659.25,1],[523.25,1],[493.88,1],[440,2],
-    [698.46,.75],[698.46,.25],[659.25,1],[523.25,1],[587.33,1],[523.25,3]
-  ];
-  let mt=t;
-  melody.forEach(([freq,beats])=>{
-    note(freq,mt,beats*B*0.88,0.38,'sine');
-    mt+=beats*B;
-  });
-
-  // Pad chords — kpop dreamy
-  const chords=[
-    [261.63,329.63,392,493.88],
-    [293.66,369.99,440,587.33],
-    [261.63,329.63,392,523.25],
-    [246.94,311.13,369.99,493.88]
-  ];
-  function pad(idx,time,dur){
-    chords[idx%chords.length].forEach(freq=>{
-      const osc=audioCtx.createOscillator(),env=audioCtx.createGain(),fil=audioCtx.createBiquadFilter();
-      osc.type='sawtooth'; osc.frequency.value=freq;
-      fil.type='lowpass'; fil.frequency.value=700; fil.Q.value=2;
-      env.gain.setValueAtTime(0,time);
-      env.gain.linearRampToValueAtTime(0.1,time+0.5);
-      env.gain.linearRampToValueAtTime(0.07,time+dur-0.5);
-      env.gain.linearRampToValueAtTime(0,time+dur);
-      osc.connect(fil); fil.connect(env); env.connect(conv);
-      osc.start(time); osc.stop(time+dur+0.1);
-    });
-  }
-  // 4 bars of pads
-  for(let i=0;i<8;i++) pad(i,t+i*2*B*4,2*B*4+0.5);
-
-  // Bell sparkle hits
-  const bells=[523.25,659.25,783.99,1046.5,1318.5];
-  for(let i=0;i<16;i++){
-    const freq=bells[Math.floor(Math.random()*bells.length)];
-    const bt=t+Math.random()*melody.reduce((s,[,b])=>s+b,0)*B;
-    note(freq,bt,.3,0.18,'sine');
-  }
-}
-
-soundBtn.addEventListener('click',e=>{
+// Toggle mute/unmute with sound button
+soundBtn.addEventListener('click', e=>{
   e.stopPropagation();
-  if(!bdPlaying){ startBirthdayMusic(); }
-  else{
-    masterGain&&masterGain.gain.linearRampToValueAtTime(0,audioCtx.currentTime+.5);
-    setTimeout(()=>{audioCtx&&audioCtx.close();audioCtx=null;},600);
-    bdPlaying=false; soundBtn.textContent='🎵';
+  if(bgAudio.paused){
+    bgAudio.play();
+    soundBtn.textContent='🎶';
+  } else {
+    bgAudio.pause();
+    soundBtn.textContent='🎵';
   }
 });
 
-// Auto-start on first interaction
-document.addEventListener('click',()=>{ if(!bdPlaying) startBirthdayMusic(); },{once:true});
-document.addEventListener('touchend',()=>{ if(!bdPlaying) startBirthdayMusic(); },{once:true,passive:true});
+// Start on first interaction if autoplay was blocked
+function startAudioOnInteraction(){
+  if(bgAudio.paused){
+    bgAudio.play();
+    soundBtn.textContent='🎶';
+  }
+}
+document.addEventListener('click',  startAudioOnInteraction, {once:true});
+document.addEventListener('touchend',startAudioOnInteraction, {once:true, passive:true});
+
+// Switch to audio/2.mpeg when popup gallery (flame click) opens
+function switchToGalleryAudio(){
+  const wasPlaying = !bgAudio.paused;
+  const currentTime = bgAudio.currentTime;
+  bgAudio.src = 'audio/2.mpeg';
+  bgAudio.load();
+  if(wasPlaying){
+    bgAudio.play();
+    soundBtn.textContent='🎶';
+  }
+}
+
+// playBirthdaySong kept for compatibility with blowCandle()
+function playBirthdaySong(){ /* audio handled via bgAudio */ }
 </script>
 </body>
 </html>
